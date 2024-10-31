@@ -1,7 +1,12 @@
 import { PostCard } from "../Post-card";
 import "./styles.css"
-export const Posts = ({ posts }) => (
-    <div className="posts">
+
+
+export const Posts = ({ posts }) => {
+
+
+    
+    return(<div className="posts">
         {posts.map((post) => (
             <PostCard
                 key={post.id}
@@ -11,8 +16,9 @@ export const Posts = ({ posts }) => (
                 altura={"height: " + post.height}
                 gender={"gender: " + post.gender}
                 homeworld={"homeworld: " + post.homeworld}
-                masters = {"masters: " + post.masters}
+                masters = {"masters: " + (post.masters !== undefined ? post.masters : "don't have masters")}
             />
         ))}
     </div>
-);
+    )
+};
