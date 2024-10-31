@@ -13,4 +13,12 @@
     align-items: flex-end;
 }
 
+.search-container{
+    margin-bottom: 20px;
+}
+
+.search-container h1{
+    margin-bottom: 20px;
+}
+
 

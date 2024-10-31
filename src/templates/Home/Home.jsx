@@ -6,6 +6,7 @@ import "./Styles.css";
 
 import { Posts } from "../../components/Posts";
 import { Button } from "../../components/Button";
+import { TextInput } from "../../components/Text-input";
 
 class App extends Component {
     state = {
@@ -14,6 +15,7 @@ class App extends Component {
         page: 0,
         postsPerPage: 3,
     };
+    
 
     componentDidMount() {
         this.loadPost();
@@ -58,26 +60,32 @@ class App extends Component {
 
         const filteredPosts = !!searchValue
             ? allPosts.filter((post) => {
-                  return post.name
-                      .toLowerCase()
-                      .includes(searchValue.toLowerCase());
-              })
+                return post.name
+                    .toLowerCase()
+                    .includes(searchValue.toLowerCase());
+            })
             : posts;
 
         return (
             <section className="container">
-                {!!searchValue && <h1>Search characters {searchValue}</h1>}
+                <div className="search-container">
+                    {!!searchValue && 
+                    <h1>
+                        Search characters: {searchValue}
+                    </h1>
+                }
+                    <TextInput searchValue={searchValue} handleChange={this.handleChange}/>
+                </div>
+                
+                
 
-                <input
-                    onChange={this.handleChange}
-                    value={searchValue}
-                    type="search"
-                />
+                {filteredPosts.length > 0 && 
+                    <Posts posts={filteredPosts} />
+                }
 
-                {filteredPosts.length > 0 && <Posts posts={filteredPosts} />}
-
-                {filteredPosts.length === 0 && <p>not exist this charectes </p>}
-
+                {filteredPosts.length === 0 && 
+                    <p>Not exists this character</p>
+                }
 
                 <div className="btn-container">
                     {!searchValue && (
