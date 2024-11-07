@@ -1,103 +1,78 @@
-/* eslint-disable no-unused-vars */
-
-import { Component } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import "./Styles.css";
 
 import { Posts } from "../../components/Posts";
+import { loadPosts } from "../../utils/load-posts";
 import { Button } from "../../components/Button";
 import { TextInput } from "../../components/Text-input";
 
-class App extends Component {
-    state = {
-        posts: [],
-        allPosts: [],
-        page: 0,
-        postsPerPage: 3,
-    };
-    
+export const Home = () => {
+    const [posts, setPosts] = useState([]);
+    const [allPosts, setAllPosts] = useState([]);
+    const [page, setPage] = useState(0);
+    const [postsPerPage] = useState(3);
+    const [searchValue, setSearchValue] = useState("");
 
-    componentDidMount() {
-        this.loadPost();
-    }
+    const handleLoadPosts = useCallback(async (page, postsPerPage) => {
+        const postsAndPhotos = await loadPosts();
 
-    loadPost = async () => {
-        const { page, postsPerPage } = this.state;
+        setPosts(postsAndPhotos.slice(page, postsPerPage));
+        setAllPosts(postsAndPhotos);
+    }, []);
 
-        const postResponse = fetch(
-            "https://akabab.github.io/starwars-api/api/all.json"
-        );
+    useEffect(() => {
+        console.log(new Date().toLocaleString("pt-BR"));
+        handleLoadPosts(0, postsPerPage);
+    }, [handleLoadPosts, postsPerPage]);
 
-        const [posts] = await Promise.all([postResponse]);
-
-        const postjson = await posts.json();
-
-        this.setState({
-            posts: postjson.slice(page, postsPerPage),
-            allPosts: postjson,
-        });
-    };
-
-    loadMorePosts = () => {
-        const { page, postsPerPage, allPosts, posts, searchValue } = this.state;
-
+    const loadMorePosts = () => {
         const nextPage = page + postsPerPage;
-        const nextsPosts = allPosts.slice(nextPage, nextPage + postsPerPage);
-        posts.push(...nextsPosts);
+        const nextPosts = allPosts.slice(nextPage, nextPage + postsPerPage);
+        posts.push(...nextPosts);
 
-        this.setState({ posts, page: nextPage });
+        setPosts(posts);
+        setPage(nextPage);
     };
 
-    handleChange = (e) => {
+    const handleChange = (e) => {
         const { value } = e.target;
-
-        this.setState({ searchValue: value });
+        setSearchValue(value);
     };
 
-    render() {
-        const { posts, page, postsPerPage, allPosts, searchValue } = this.state;
-        const noMorePost = page + postsPerPage >= allPosts.length;
+    const noMorePosts = page + postsPerPage >= allPosts.length;
+    const filteredPosts = !!searchValue
+        ? allPosts.filter((post) => {
+              return post.title
+                  .toLowerCase()
+                  .includes(searchValue.toLowerCase());
+          })
+        : posts;
 
-        const filteredPosts = !!searchValue
-            ? allPosts.filter((post) => {
-                return post.name
-                    .toLowerCase()
-                    .includes(searchValue.toLowerCase());
-            })
-            : posts;
+    return (
+        <section className="container">
+            <div className="search-container">
+                {!!searchValue && <h1>Search value: {searchValue}</h1>}
 
-        return (
-            <section className="container">
-                <div className="search-container">
-                    {!!searchValue && 
-                    <h1>
-                        Search characters: {searchValue}
-                    </h1>
-                }
-                    <TextInput searchValue={searchValue} handleChange={this.handleChange}/>
-                </div>
-                
-                
+                <TextInput
+                    searchValue={searchValue}
+                    handleChange={handleChange}
+                />
+            </div>
 
-                {filteredPosts.length > 0 && 
-                    <Posts posts={filteredPosts} />
-                }
+            {filteredPosts.length > 0 && <Posts posts={filteredPosts} />}
 
-                {filteredPosts.length === 0 && 
-                    <p>Not exists this character</p>
-                }
+            {filteredPosts.length === 0 && <p>Não existem posts =(</p>}
 
-                <div className="btn-container">
-                    {!searchValue && (
-                        <Button
-                            onClick={this.loadMorePosts}
-                            text={"Load more"}
-                            disabled={noMorePost}
-                        />
-                    )}
-                </div>
-            </section>
-        );
-    }
-}
-export default App;
+            <div className="button-container">
+                {!searchValue && (
+                    <Button
+                        text="Load more posts"
+                        onClick={loadMorePosts}
+                        disabled={noMorePosts}
+                    />
+                )}
+            </div>
+        </section>
+    );
+};
