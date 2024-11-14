@@ -2,7 +2,7 @@ import { PostCard } from "../Post-card";
 import "./styles.css"
 
 
-export const Posts = ({ posts }) => {
+export const Posts = ({ posts = [] }) => {
 
 
     

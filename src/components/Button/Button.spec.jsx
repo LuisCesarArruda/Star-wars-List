@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event"
 import  {Button} from "./index"
 
-const { render, screen, fireEvent } = require("@testing-library/react")
+const { render, screen } = require("@testing-library/react")
 
 describe("<Button/>", ()=>{
 
@@ -28,9 +28,18 @@ describe("<Button/>", ()=>{
 
     it("Should be disabled when disabled is true", () =>{
 
-        //TODO
         render(<Button text= "load more" disabled= {true}/>)
 
-        const button = screen.getByRole("button", )
+        const button = screen.getByRole("button", {name: /load more/i} )
+        expect(button).toBeDisabled()
+    })
+
+    it("Should match snapshot", () =>{
+
+        const fn = jest.fn()
+
+        const {container}=render(<Button text= "load more" onClick={fn} disabled= {true}/>)
+
+        expect(container.childNodes).toMatchSnapshot()
     })
 })
